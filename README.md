@@ -21,3 +21,6 @@ Pada studi kasus ini, saya menggunakan database yang memiliki 2 tabel, yaitu tab
 | Bulan | varchar(40) |
 | Tahun | int |
 | Hasil_Penjualan | int |
+
+### Link Deployment
+https://studi-kasus-1-rosaamalia.000webhostapp.com/
