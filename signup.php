@@ -10,32 +10,33 @@ if( isset($_SESSION["login"]) )
 
 $conn = mysqli_connect("localhost", "root", "", "pweb_studi-kasus1");
 
+// flag untuk menampilkan modal
+$flag_password = 0;
+$flag_signup = 0;
+
 //cek tombol submit ditekan
-if( isset($_POST["login"]) )
+if( isset($_POST["signup"]) )
 {
     $email = $_POST["email"];
-    $password = $_POST["password"];
+    $password = mysqli_real_escape_string($conn, $_POST["password"]); //agar dapat menggunakan simbol tanda kutip
+    $password2 = mysqli_real_escape_string($conn, $_POST["confirm_password"]); 
 
-    //cek email ada di databse atau tidak
-    $cek = mysqli_query($conn, "SELECT * FROM user WHERE Email = '$email'");
-    // echo($cek);
-
-    if( mysqli_num_rows($cek) === 1 )
+    //cek konfirmasi password
+    if( $password !== $password2)
     {
-        //cek password
-        $row = mysqli_fetch_array($cek); //ambil semua data
-        if ( $password == $row["Password"] )
-        {
-            //set session
-            $_SESSION["login"] = true;
-
-            header("Location: index.php?id=".$row["ID_User"]); //diarahkan ke index.php
-            // echo('Login Berhasil');
-            exit;
-        }
+        $flag_password = 1;
     }
 
-    $error = true;
+    // tambahkan userbaru ke database
+    mysqli_query($conn, "INSERT INTO user VALUES('', '$email', '$password')");
+
+    if( mysqli_affected_rows($conn) > 0 )
+    {
+        $flag_signup = 1;
+    } else {
+        echo mysqli_error($conn);
+    }
+
 }
 ?>
 
@@ -63,7 +64,7 @@ if( isset($_POST["login"]) )
             </div>
             <div class="row">
                 <form class="p-5" action="" method="post">
-                    <p class="text-center fs-6 fw-bold">Belum memiliki akun? Daftar <a href="./signup.php">disini</a>
+                    <p class="text-center fs-6 fw-bold">Sudah memiliki akun? Masuk <a href="./login.php">disini</a>
                     </p>
                     <div class="mb-3 col-12">
                         <label for="exampleInputEmail1" class="form-label">Email address</label>
@@ -73,18 +74,22 @@ if( isset($_POST["login"]) )
                         <label for="exampleInputPassword1" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password">
                     </div>
-                    <button type="submit" class="btn btn-primary" name="login">Submit</button>
+                    <div class="mb-3 col-12">
+                        <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    </div>
+                    <button type="submit" class="btn btn-primary" name="signup">Submit</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Modal alert email/password salah -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Modal konfirmasi password salah -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    Email atau Password salah.
+                    Konfirmasi password harus sama dengan password.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
@@ -92,16 +97,36 @@ if( isset($_POST["login"]) )
             </div>
         </div>
     </div>
+
+    <!-- Modal signup berhasil -->
+    <div class="modal fade" id="berhasilModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Pendaftaran berhasil! Silahkan masuk dengan akun yang sudah didaftarkan.
+                </div>
+                <div class="modal-footer">
+                    <a href="./login.php" type="button" class="btn btn-primary">OK</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 <?php			
-	if( isset($error) ) {
+	if( $flag_password == 1 ) {
 		echo '<script type="text/javascript">
 			$(document).ready(function(){
-				$("#exampleModal").modal("show");
+				$("#passwordModal").modal("show");
 			});
 		</script>';
-	} 
+	} else if( $flag_signup == 1) {
+        echo '<script type="text/javascript">
+			$(document).ready(function(){
+				$("#berhasilModal").modal("show");
+			});
+		</script>';
+    }
 ?>
 
 </html>
