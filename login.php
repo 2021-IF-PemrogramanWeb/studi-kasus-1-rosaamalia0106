@@ -29,7 +29,7 @@ if( isset($_POST["login"]) )
             //set session
             $_SESSION["login"] = true;
 
-            header("Location: index.php"); //diarahkan ke index.php
+            header("Location: index.php?id=".$row["ID_User"]); //diarahkan ke index.php
             // echo('Login Berhasil');
             exit;
         }
@@ -51,14 +51,11 @@ if( isset($_POST["login"]) )
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
     </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <title>Pemrograman Web</title>
 </head>
 
 <body>
-    <?php if( isset($error) ) :?>
-    <p>Username atau password salah</p>
-    <?php endif; ?>
-
     <div class="container-fluid d-flex p-5 justify-content-center">
         <div class="row">
             <div class="text-center">
@@ -78,8 +75,31 @@ if( isset($_POST["login"]) )
                 </form>
             </div>
         </div>
+    </div>
 
+    <!-- Modal alert email/password salah -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Email atau Password salah.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
+
+<?php			
+	if( isset($error) ) {
+		echo '<script type="text/javascript">
+			$(document).ready(function(){
+				$("#exampleModal").modal("show");
+			});
+		</script>';
+	} 
+?>
 
 </html>
