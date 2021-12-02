@@ -19,7 +19,7 @@ while( $row = mysqli_fetch_assoc($result) )
 }
 
 //Mendapatkan id user
-$user_id = $_GET["id"];
+$user_id = $_SESSION["id"];
 $result_user = mysqli_query($conn, "SELECT * FROM user WHERE ID_User = $user_id");
 $user = [];
 
@@ -82,7 +82,7 @@ while( $row = mysqli_fetch_assoc($result_user) )
                         </a>
                     </li>
                     <li>
-                        <a href="./graph.php?id=<?= $user_id; ?>" class="nav-link link-dark">
+                        <a href="./graph.php" class="nav-link link-dark">
                             <i class="fa fa-bar-chart" style="margin-right:10px;"></i>
                             Grafik
                         </a>

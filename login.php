@@ -8,6 +8,7 @@ if( isset($_SESSION["login"]) )
     exit;
 }
 
+$error = false;
 $conn = mysqli_connect("localhost", "root", "", "pweb_studi-kasus1");
 
 //cek tombol submit ditekan
@@ -16,26 +17,27 @@ if( isset($_POST["login"]) )
     $email = $_POST["email"];
     $password = $_POST["password"];
 
-    //cek email ada di databse atau tidak
+    //cek username ada di database atau tidak
     $cek = mysqli_query($conn, "SELECT * FROM user WHERE Email = '$email'");
-    // echo($cek);
 
     if( mysqli_num_rows($cek) === 1 )
     {
         //cek password
-        $row = mysqli_fetch_array($cek); //ambil semua data
-        if ( $password == $row["Password"] )
+        $row = mysqli_fetch_assoc($cek); //ambil semua data
+
+        if ( password_verify($password, $row["Password"]) )
         {
             //set session
             $_SESSION["login"] = true;
 
-            header("Location: index.php?id=".$row["ID_User"]); //diarahkan ke index.php
-            // echo('Login Berhasil');
+            $_SESSION["id"] = $row["ID_User"];
+
+            header("Location: index.php"); //diarahkan ke index.php
             exit;
         }
     }
 
-    $error = true;
+    // $error = true;
 }
 ?>
 
@@ -67,11 +69,12 @@ if( isset($_POST["login"]) )
                     </p>
                     <div class="mb-3 col-12">
                         <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email">
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email"
+                            required>
                     </div>
                     <div class="mb-3 col-12">
                         <label for="exampleInputPassword1" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password">
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <button type="submit" class="btn btn-primary" name="login">Submit</button>
                 </form>
@@ -95,7 +98,7 @@ if( isset($_POST["login"]) )
 </body>
 
 <?php			
-	if( isset($error) ) {
+	if( $error ) {
 		echo '<script type="text/javascript">
 			$(document).ready(function(){
 				$("#exampleModal").modal("show");

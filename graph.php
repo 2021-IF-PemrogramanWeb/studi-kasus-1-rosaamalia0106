@@ -13,7 +13,7 @@ $bulan       = mysqli_query($conn, "SELECT Bulan FROM penjualan WHERE Tahun='201
 $penghasilan = mysqli_query($conn, "SELECT Hasil_Penjualan FROM penjualan WHERE Tahun='2016' order by ID_Penjualan asc");
 
 //Mendapatkan id user
-$user_id = $_GET["id"];
+$user_id = $_SESSION["id"];
 $result_user = mysqli_query($conn, "SELECT * FROM user WHERE ID_User = $user_id");
 $user = [];
 
@@ -71,7 +71,7 @@ while( $row = mysqli_fetch_assoc($result_user) )
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a href="./index.php?id=<?= $user_id; ?>" class="nav-link link-dark" aria-current="page">
+                        <a href="./index.php" class="nav-link link-dark" aria-current="page">
                             <i class="fa fa-table" style="margin-right:10px;"></i>
                             Tabel
                         </a>

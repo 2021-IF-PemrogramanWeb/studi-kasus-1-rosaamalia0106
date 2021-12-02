@@ -12,6 +12,8 @@ $conn = mysqli_connect("localhost", "root", "", "pweb_studi-kasus1");
 
 // flag untuk menampilkan modal
 $flag_password = 0;
+$flag_email = 0;
+$flag_empty = 0;
 $flag_signup = 0;
 
 //cek tombol submit ditekan
@@ -21,21 +23,29 @@ if( isset($_POST["signup"]) )
     $password = mysqli_real_escape_string($conn, $_POST["password"]); //agar dapat menggunakan simbol tanda kutip
     $password2 = mysqli_real_escape_string($conn, $_POST["confirm_password"]); 
 
-    //cek konfirmasi password
-    if( $password !== $password2)
+    if($email == '' || $password == '' || $password2 == ''){
+        $flag_empty = 1;
+    }
+    else if(mysqli_num_rows(mysqli_query($conn, "SELECT * FROM user WHERE Email = '$email'")) == 1){
+        $flag_email = 1;
+    }
+    else if( $password !== $password2)
     {
         $flag_password = 1;
-    }
-
-    // tambahkan userbaru ke database
-    mysqli_query($conn, "INSERT INTO user VALUES('', '$email', '$password')");
-
-    if( mysqli_affected_rows($conn) > 0 )
-    {
-        $flag_signup = 1;
     } else {
-        echo mysqli_error($conn);
+        $password = password_hash($password, PASSWORD_DEFAULT);
+    
+        // tambahkan userbaru ke database
+        mysqli_query($conn, "INSERT INTO user VALUES('', '$email', '$password')");
+    
+        if( mysqli_affected_rows($conn) > 0 )
+        {
+            $flag_signup = 1;
+        } else {
+            echo mysqli_error($conn);
+        }
     }
+
 
 }
 ?>
@@ -68,18 +78,48 @@ if( isset($_POST["signup"]) )
                     </p>
                     <div class="mb-3 col-12">
                         <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email">
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email"
+                            required>
                     </div>
                     <div class="mb-3 col-12">
                         <label for="exampleInputPassword1" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password">
+                        <input type="password" class="form-control" id="password" name="password" required>
                     </div>
                     <div class="mb-3 col-12">
                         <label for="exampleInputPassword1" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                            required>
                     </div>
                     <button type="submit" class="btn btn-primary" name="signup">Submit</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal field kosong  -->
+    <div class="modal fade" id="emptyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Mohon isi kotak formulir untuk mendaftar.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal email sudah digunakan  -->
+    <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Email sudah digunakan. Silahkan gunakan email lain untuk mendaftar.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
             </div>
         </div>
     </div>
@@ -124,6 +164,18 @@ if( isset($_POST["signup"]) )
         echo '<script type="text/javascript">
 			$(document).ready(function(){
 				$("#berhasilModal").modal("show");
+			});
+		</script>';
+    } else if( $flag_email == 1) {
+        echo '<script type="text/javascript">
+			$(document).ready(function(){
+				$("#emailModal").modal("show");
+			});
+		</script>';
+    } else if ( $flag_empty == 1) {
+        echo '<script type="text/javascript">
+			$(document).ready(function(){
+				$("#emptyModal").modal("show");
 			});
 		</script>';
     }
